@@ -29,21 +29,37 @@
     acc))
 
 (defn draw-line
-  [gfx x y angle length width]
+  [gfx x y angle length width screen-height]
   (let [[x-end y-end] (g/endpoint x y angle length)]
-    (.setStroke gfx (BasicStroke. width))
-    (.drawLine gfx x (- 1000 y) x-end (- 1000 y-end))))
+    (.setStroke gfx (BasicStroke. (/ width 2)))
+    (.drawLine gfx x (- screen-height y) x-end (- screen-height y-end))))
+
+(defn get-methods
+  [x]
+  (map #(.getName %)
+       (.getMethods (type x))))
+
+(defn frame-size
+  [frame]
+  (let [size (.size frame)]
+    {:width (.getWidth size)
+     :height (.getHeight size)}))
+
+(defn haha-info [frame]
+  (frame-size frame))
 
 (defn -main
   [& args]
-  (let [btn-draw (JButton. "Click To Draw Level")
+  (let [btn-draw (JButton. "To Draw Level")
         btn-clear (JButton. "Clear")
+        btn-show-value (JButton. "Show Value")
         txt (doto (JTextField. 6)
               (.setText "9"))
         panel (doto (JPanel.)
                 (.add txt)
                 (.add btn-draw)
-                (.add btn-clear))
+                (.add btn-clear)
+                (.add btn-show-value))        
         frame (doto (JFrame. "Fractals Forest Dojo")
                 (.setSize 200 200)
                 (.setVisible true)
@@ -53,16 +69,21 @@
                           (let [gfx (.getGraphics panel)
                                 growth (+ 0.4 (rand 1.7))
                                 level (Integer/parseInt (.getText txt))
+                                {:keys [width height]} (frame-size frame)
                                 lines (get-lines 0 level []
-                                                 [[(adjust-value 1000.0 0 900)
-                                                   (+ 550.0 (* (- 1 growth) 500))
+                                                 [[(adjust-value (/ width 2) 0 (/ width 2))
+                                                   (/ height growth 5)
                                                    90.0
                                                    (* growth 80.0)
-                                                   (* growth 23.0)]])]
+                                                   (* growth 33.0)]])]
                             (doseq [[x y angle length width] lines]
-                              (draw-line gfx x y angle length width)))))
+                              (draw-line gfx x y angle length width height)))))
         clear-handler (proxy [ActionListener] []
                             (actionPerformed [event]
                               (.repaint panel)))]
     (.addActionListener btn-draw click-handler)
+    (.addActionListener btn-show-value (proxy [ActionListener] []
+                                         (actionPerformed [event]
+                                           (clojure.pprint/pprint
+                                            (haha-info frame)))))
     (.addActionListener btn-clear clear-handler)))
