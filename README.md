@@ -1,32 +1,12 @@
 # dojo-fractal-forest
 
-FIXME: description
+Shows how to draw some fractal trees with java.awt swing in Clojure.
+The code base is kept small, about 100 lines including the UI code.
 
-## Installation
+The recursion level for the trees can be specified in the UI.
 
-Download from http://example.com/FIXME.
-
-## Usage
-
-FIXME: explanation
-
-    $ java -jar dojo-fractal-forest-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+Some effort has been made to include some randomness so that not all
+trees drawn look the same.
 
 ## License
 
