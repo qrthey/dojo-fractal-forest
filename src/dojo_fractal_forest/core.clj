@@ -34,19 +34,11 @@
     (.setStroke gfx (BasicStroke. (/ width 2)))
     (.drawLine gfx x (- screen-height y) x-end (- screen-height y-end))))
 
-(defn get-methods
-  [x]
-  (map #(.getName %)
-       (.getMethods (type x))))
-
 (defn frame-size
   [frame]
   (let [size (.size frame)]
     {:width (.getWidth size)
      :height (.getHeight size)}))
-
-(defn haha-info [frame]
-  (frame-size frame))
 
 (defn -main
   [& args]
@@ -83,7 +75,5 @@
                               (.repaint panel)))]
     (.addActionListener btn-draw click-handler)
     (.addActionListener btn-show-value (proxy [ActionListener] []
-                                         (actionPerformed [event]
-                                           (clojure.pprint/pprint
-                                            (haha-info frame)))))
+                                         (actionPerformed [event])))
     (.addActionListener btn-clear clear-handler)))
