@@ -3,10 +3,9 @@
   (:require [dojo-fractal-forest.geometry :as g])
   (:import [javax.swing JFrame JPanel JButton JTextField]
            [java.awt BasicStroke]
-           [java.awt.event ActionListener]))
+           [java.awt.event ActionListener WindowAdapter]))
 
 (defn adjust-value [val v variation]
-  (let [])
   (+ val v (- variation (rand-int (* 2 variation)))))
 
 (defn get-lines [curr-l max-l acc fut]
@@ -42,38 +41,37 @@
 
 (defn -main
   [& args]
-  (let [btn-draw (JButton. "To Draw Level")
+  (let [txt (doto (JTextField. 6) (.setText "9"))
+        btn-draw (JButton. "Draw Level")
         btn-clear (JButton. "Clear")
-        btn-show-value (JButton. "Show Value")
-        txt (doto (JTextField. 6)
-              (.setText "9"))
         panel (doto (JPanel.)
                 (.add txt)
                 (.add btn-draw)
-                (.add btn-clear)
-                (.add btn-show-value))        
+                (.add btn-clear))
         frame (doto (JFrame. "Fractals Forest Dojo")
                 (.setSize 200 200)
                 (.setVisible true)
                 (.setContentPane panel))
-        click-handler (proxy [ActionListener] []
-                        (actionPerformed [event]
-                          (let [gfx (.getGraphics panel)
-                                growth (+ 0.4 (rand 1.7))
-                                level (Integer/parseInt (.getText txt))
-                                {:keys [width height]} (frame-size frame)
-                                lines (get-lines 0 level []
-                                                 [[(adjust-value (/ width 2) 0 (/ width 2))
-                                                   (/ height growth 5)
-                                                   90.0
-                                                   (* growth 80.0)
-                                                   (* growth 33.0)]])]
-                            (doseq [[x y angle length width] lines]
-                              (draw-line gfx x y angle length width height)))))
+        draw-handler (proxy [ActionListener] []
+                       (actionPerformed [event]
+                         (let [gfx (.getGraphics panel)
+                               growth (+ 0.4 (rand 1.7))
+                               level (Integer/parseInt (.getText txt))
+                               {:keys [width height]} (frame-size frame)
+                               lines (get-lines 0 level []
+                                                [[(adjust-value (/ width 2) 0 (/ width 2))
+                                                  (/ height growth 5)
+                                                  90.0
+                                                  (* growth 80.0)
+                                                  (* growth 33.0)]])]
+                           (doseq [[x y angle length width] lines]
+                             (draw-line gfx x y angle length width height)))))
         clear-handler (proxy [ActionListener] []
-                            (actionPerformed [event]
-                              (.repaint panel)))]
-    (.addActionListener btn-draw click-handler)
-    (.addActionListener btn-show-value (proxy [ActionListener] []
-                                         (actionPerformed [event])))
-    (.addActionListener btn-clear clear-handler)))
+                        (actionPerformed [_]
+                          (.repaint panel)))
+        frame-closing (proxy [WindowAdapter] []
+                        (windowClosing [_]
+                          (System/exit 0)))]
+    (.addActionListener btn-draw draw-handler)
+    (.addActionListener btn-clear clear-handler)
+    (.addWindowListener frame frame-closing)))
